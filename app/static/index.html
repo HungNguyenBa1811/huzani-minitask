@@ -163,6 +163,21 @@
       background: #0f172a;
     }
 
+    .section-divider {
+      margin: 20px 0;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .table-block {
+      margin-top: 20px;
+    }
+
     @media (max-width: 980px) {
       .container {
         grid-template-columns: 1fr;
@@ -216,6 +231,27 @@
       </form>
 
       <div id="status" class="status"></div>
+
+      <hr class="section-divider" />
+
+      <h2 class="section-title">Thêm Human Type</h2>
+      <p class="subtitle">Tạo loại Human mới để dùng cho form Human.</p>
+
+      <form id="human-type-form" class="form-grid">
+        <div>
+          <label for="type-id">Type ID</label>
+          <input id="type-id" name="type-id" type="number" min="1" required />
+        </div>
+
+        <div>
+          <label for="type-name">Type Name</label>
+          <input id="type-name" name="type-name" type="text" maxlength="50" required />
+        </div>
+
+        <button type="submit">Lưu Human Type</button>
+      </form>
+
+      <div id="type-status" class="status"></div>
     </section>
 
     <section class="panel">
@@ -244,19 +280,44 @@
           </tbody>
         </table>
       </div>
+
+      <div class="table-block">
+        <h2 style="margin: 0 0 10px; font-size: 20px;">Danh Sách Human Type</h2>
+        <div class="table-wrap" style="max-height: 240px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Type ID</th>
+                <th>Type Name</th>
+              </tr>
+            </thead>
+            <tbody id="types-body">
+              <tr><td colspan="2">Đang tải dữ liệu...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
   </div>
 
   <script>
     const form = document.getElementById("human-form");
+    const typeForm = document.getElementById("human-type-form");
     const statusEl = document.getElementById("status");
+    const typeStatusEl = document.getElementById("type-status");
     const bodyEl = document.getElementById("humans-body");
+    const typeBodyEl = document.getElementById("types-body");
     const typeEl = document.getElementById("typeid");
     const refreshBtn = document.getElementById("refresh");
 
     function setStatus(message, type = "") {
       statusEl.textContent = message;
       statusEl.className = `status ${type}`.trim();
+    }
+
+    function setTypeStatus(message, type = "") {
+      typeStatusEl.textContent = message;
+      typeStatusEl.className = `status ${type}`.trim();
     }
 
     function formatDate(value) {
@@ -271,14 +332,29 @@
         const types = await res.json();
 
         typeEl.innerHTML = "<option value=''>-- Chọn loại --</option>";
+        typeBodyEl.innerHTML = "";
+
+        if (!types.length) {
+          typeBodyEl.innerHTML = "<tr><td colspan='2'>Chưa có dữ liệu</td></tr>";
+          return;
+        }
+
         types.forEach((item) => {
           const option = document.createElement("option");
           option.value = item.typeid;
           option.textContent = `${item.typeid} - ${item.name}`;
           typeEl.appendChild(option);
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.typeid}</td>
+            <td>${item.name}</td>
+          `;
+          typeBodyEl.appendChild(row);
         });
       } catch (error) {
         typeEl.innerHTML = "<option value=''>Lỗi tải dữ liệu</option>";
+        typeBodyEl.innerHTML = `<tr><td colspan='2'>${error.message}</td></tr>`;
         setStatus(error.message, "error");
       }
     }
@@ -347,7 +423,41 @@
       }
     });
 
-    refreshBtn.addEventListener("click", loadHumans);
+    typeForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setTypeStatus("Đang lưu Human Type...");
+
+      const payload = {
+        typeid: Number(document.getElementById("type-id").value),
+        name: document.getElementById("type-name").value.trim(),
+      };
+
+      try {
+        const res = await fetch("/humans/types", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          const detail = data.detail || "Lưu Human Type thất bại";
+          throw new Error(detail);
+        }
+
+        setTypeStatus(data.message || "Lưu Human Type thành công", "success");
+        typeForm.reset();
+        await loadTypes();
+      } catch (error) {
+        setTypeStatus(error.message, "error");
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      await loadTypes();
+      await loadHumans();
+    });
 
     loadTypes();
     loadHumans();

@@ -33,6 +33,11 @@ class HumanTypeRead(BaseModel):
     name: str
 
 
+class HumanTypeCreate(BaseModel):
+    typeid: int = Field(gt=0)
+    name: str = Field(min_length=1, max_length=50)
+
+
 @router.get("", response_model=list[HumanRead])
 def list_humans() -> list[HumanRead]:
     query = text(
@@ -72,6 +77,27 @@ def list_human_types() -> list[HumanTypeRead]:
         rows = connection.execute(query).mappings().all()
 
     return [HumanTypeRead.model_validate(dict(row)) for row in rows]
+
+
+@router.post("/types", status_code=201)
+def create_human_type(payload: HumanTypeCreate) -> dict[str, str]:
+    insert_query = text(
+        """
+        INSERT INTO HumanType (typeid, name)
+        VALUES (:typeid, :name)
+        """
+    )
+
+    engine = get_engine()
+
+    try:
+        with engine.begin() as connection:
+            connection.execute(insert_query, payload.model_dump())
+    except IntegrityError as exc:
+        message = str(exc.orig) if exc.orig else str(exc)
+        raise HTTPException(status_code=400, detail=f"Cannot insert human type: {message}") from exc
+
+    return {"message": "Human type created successfully"}
 
 
 @router.post("", status_code=201)
