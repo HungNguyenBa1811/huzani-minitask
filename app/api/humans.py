@@ -1,14 +1,33 @@
+import re
 from datetime import date
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 from app.db.session import get_engine
 
 router = APIRouter(prefix="/humans", tags=["Humans"])
+
+# Whitelist: unicode word chars (letters/digits/_), spaces, hyphens, dots only.
+# Apostrophes and other SQL-sensitive chars are intentionally excluded (defense-in-depth).
+# Parameterized queries already prevent SQL injection at the DB layer.
+_NAME_PATTERN = re.compile(r"^[\w\s\-\.]+$", re.UNICODE)
+_SQL_SPECIAL_CHARS = re.compile(r"[;'\"`\\=<>()|&%+*!]")
+_DOB_MIN_YEAR = 1900
+
+
+def _validate_name(v: str) -> str:
+    v = v.strip()
+    if not v:
+        raise ValueError("must not be blank or whitespace only")
+    if _SQL_SPECIAL_CHARS.search(v):
+        raise ValueError("must not contain special characters (;, ', \", `, \\, =, <, >, (, ), |, &, %, +, *, !)")
+    if not _NAME_PATTERN.match(v):
+        raise ValueError("must contain only letters, digits, spaces, hyphens, or dots")
+    return v
 
 
 class HumanCreate(BaseModel):
@@ -17,6 +36,22 @@ class HumanCreate(BaseModel):
     dob: date | None = None
     gender: Literal["M", "F"] | None = None
     typeid: int = Field(gt=0)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        return _validate_name(v)
+
+    @field_validator("dob")
+    @classmethod
+    def validate_dob(cls, v: date | None) -> date | None:
+        if v is None:
+            return v
+        if v > date.today():
+            raise ValueError("date of birth must not be in the future")
+        if v.year < _DOB_MIN_YEAR:
+            raise ValueError(f"date of birth must be on or after {_DOB_MIN_YEAR}-01-01")
+        return v
 
 
 class HumanRead(BaseModel):
@@ -36,6 +71,11 @@ class HumanTypeRead(BaseModel):
 class HumanTypeCreate(BaseModel):
     typeid: int = Field(gt=0)
     name: str = Field(min_length=1, max_length=50)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        return _validate_name(v)
 
 
 @router.get("", response_model=list[HumanRead])

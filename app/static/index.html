@@ -1,466 +1,313 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Human Management</title>
-  <style>
-    :root {
-      --bg-1: #f9fafb;
-      --bg-2: #eef2ff;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --accent: #0ea5e9;
-      --accent-2: #0284c7;
-      --danger: #dc2626;
-      --success: #16a34a;
-      --border: #dbe4ee;
-    }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Human Management</title>
 
-    * {
-      box-sizing: border-box;
-    }
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    </head>
+    <body
+        class="min-h-screen p-6 text-slate-900 bg-[radial-gradient(circle_at_15%_20%,#eef2ff,#f9fafb_65%)]"
+        style="font-family: 'Segoe UI', Arial, sans-serif"
+    >
+        <div class="max-w-[1100px] mx-auto grid gap-6 grid-cols-[360px_1fr] max-[980px]:grid-cols-1">
+            <section class="bg-white border border-[#dbe4ee] rounded-2xl shadow-[0_10px_30px_rgba(2,6,23,0.06)] p-5">
+                <h1 class="text-[28px] font-bold mt-0 mb-2">Nhập Thông Tin Human</h1>
+                <p class="mt-0 mb-5 text-slate-500 text-sm">Dữ liệu sẽ được lưu vào bảng Human và hiển thị ngay bên phải.</p>
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Segoe UI", "Arial", sans-serif;
-      background: radial-gradient(circle at 15% 20%, var(--bg-2), var(--bg-1) 65%);
-      color: var(--text);
-      padding: 24px;
-    }
+                <form id="human-form" class="grid gap-3">
+                    <div>
+                        <label for="id" class="text-[13px] text-slate-500 block mb-1.5">ID</label>
+                        <input id="id" name="id" type="number" min="1" required
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500" />
+                    </div>
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 24px;
-    }
+                    <div>
+                        <label for="name" class="text-[13px] text-slate-500 block mb-1.5">Họ tên</label>
+                        <input id="name" name="name" type="text" maxlength="50" required
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500" />
+                    </div>
 
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
-      padding: 20px;
-    }
+                    <div>
+                        <label for="dob" class="text-[13px] text-slate-500 block mb-1.5">Ngày sinh</label>
+                        <input id="dob" name="dob" type="date"
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500" />
+                    </div>
 
-    h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
+                    <div>
+                        <label for="gender" class="text-[13px] text-slate-500 block mb-1.5">Giới tính</label>
+                        <select id="gender" name="gender"
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500">
+                            <option value="">-- Chọn --</option>
+                            <option value="M">Nam (M)</option>
+                            <option value="F">Nữ (F)</option>
+                        </select>
+                    </div>
 
-    .subtitle {
-      margin: 0 0 20px;
-      color: var(--muted);
-      font-size: 14px;
-    }
+                    <div>
+                        <label for="typeid" class="text-[13px] text-slate-500 block mb-1.5">Loại Human</label>
+                        <select id="typeid" name="typeid" required
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500">
+                            <option value="">Đang tải...</option>
+                        </select>
+                    </div>
 
-    .form-grid {
-      display: grid;
-      gap: 12px;
-    }
+                    <button type="submit"
+                        class="w-full rounded-[10px] border-none bg-gradient-to-br from-sky-500 to-sky-600 text-white font-semibold px-3 py-2.5 text-sm cursor-pointer transition-all duration-150 hover:-translate-y-px hover:shadow-[0_10px_18px_rgba(2,132,199,0.25)]">
+                        Lưu vào Database
+                    </button>
+                </form>
 
-    label {
-      font-size: 13px;
-      color: var(--muted);
-      display: block;
-      margin-bottom: 6px;
-    }
+                <div id="status" class="mt-3 text-[13px] min-h-[18px]"></div>
 
-    input,
-    select,
-    button {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      font-size: 14px;
-    }
+                <hr class="my-5 border-0 border-t border-[#dbe4ee]" />
 
-    input:focus,
-    select:focus {
-      outline: 2px solid rgba(14, 165, 233, 0.3);
-      border-color: var(--accent);
-    }
+                <h2 class="mt-0 mb-2 text-xl font-bold">Thêm Human Type</h2>
+                <p class="mt-0 mb-5 text-slate-500 text-sm">Tạo loại Human mới để dùng cho form Human.</p>
 
-    button {
-      border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s ease;
-    }
+                <form id="human-type-form" class="grid gap-3">
+                    <div>
+                        <label for="type-id" class="text-[13px] text-slate-500 block mb-1.5">Type ID</label>
+                        <input id="type-id" name="type-id" type="number" min="1" required
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500" />
+                    </div>
 
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(2, 132, 199, 0.25);
-    }
+                    <div>
+                        <label for="type-name" class="text-[13px] text-slate-500 block mb-1.5">Type Name</label>
+                        <input id="type-name" name="type-name" type="text" maxlength="50" required
+                            class="w-full rounded-[10px] border border-[#dbe4ee] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300/30 focus:border-sky-500" />
+                    </div>
 
-    .status {
-      margin-top: 12px;
-      font-size: 13px;
-      min-height: 18px;
-    }
+                    <button type="submit"
+                        class="w-full rounded-[10px] border-none bg-gradient-to-br from-sky-500 to-sky-600 text-white font-semibold px-3 py-2.5 text-sm cursor-pointer transition-all duration-150 hover:-translate-y-px hover:shadow-[0_10px_18px_rgba(2,132,199,0.25)]">
+                        Lưu Human Type
+                    </button>
+                </form>
 
-    .status.error {
-      color: var(--danger);
-    }
+                <div id="type-status" class="mt-3 text-[13px] min-h-[18px]"></div>
+            </section>
 
-    .status.success {
-      color: var(--success);
-    }
+            <section class="bg-white border border-[#dbe4ee] rounded-2xl shadow-[0_10px_30px_rgba(2,6,23,0.06)] p-5">
+                <div class="flex items-center justify-between mb-3 gap-3">
+                    <div>
+                        <h2 class="m-0 text-xl font-bold">Danh Sách Human</h2>
+                        <p class="mt-1 mb-0 text-slate-500 text-sm">Dữ liệu lấy trực tiếp từ SQL Server</p>
+                    </div>
+                    <button id="refresh" type="button"
+                        class="w-auto rounded-[10px] border-none bg-slate-900 text-white font-semibold px-3.5 py-2 text-[13px] cursor-pointer transition-all duration-150 hover:-translate-y-px hover:shadow-[0_10px_18px_rgba(2,132,199,0.25)]">
+                        Tải lại
+                    </button>
+                </div>
 
-    .table-wrap {
-      overflow: auto;
-      max-height: 70vh;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
+                <div class="overflow-auto max-h-[70vh] border border-[#dbe4ee] rounded-xl max-[980px]:max-h-none">
+                    <table class="w-full border-collapse text-sm bg-white">
+                        <thead>
+                            <tr>
+                                <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">ID</th>
+                                <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Họ tên</th>
+                                <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Ngày sinh</th>
+                                <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Giới tính</th>
+                                <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Type ID</th>
+                                <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Type Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="humans-body">
+                            <tr>
+                                <td colspan="6" class="p-3 border-b border-[#edf2f7] text-gray-800">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      background: #fff;
-    }
-
-    thead th {
-      text-align: left;
-      background: #f1f5f9;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    tbody td {
-      padding: 12px;
-      border-bottom: 1px solid #edf2f7;
-      color: #1f2937;
-    }
-
-    tbody tr:hover {
-      background: #f8fafc;
-    }
-
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      gap: 12px;
-    }
-
-    .refresh-btn {
-      width: auto;
-      padding: 8px 14px;
-      font-size: 13px;
-      background: #0f172a;
-    }
-
-    .section-divider {
-      margin: 20px 0;
-      border: none;
-      border-top: 1px solid var(--border);
-    }
-
-    .section-title {
-      margin: 0 0 8px;
-      font-size: 20px;
-    }
-
-    .table-block {
-      margin-top: 20px;
-    }
-
-    @media (max-width: 980px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-
-      .table-wrap {
-        max-height: none;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <section class="panel">
-      <h1>Nhập Thông Tin Human</h1>
-      <p class="subtitle">Dữ liệu sẽ được lưu vào bảng Human và hiển thị ngay bên phải.</p>
-
-      <form id="human-form" class="form-grid">
-        <div>
-          <label for="id">ID</label>
-          <input id="id" name="id" type="number" min="1" required />
+                <div class="mt-5">
+                    <h2 class="mt-0 mb-2.5 text-xl font-bold">Danh Sách Human Type</h2>
+                    <div class="overflow-auto max-h-[240px] border border-[#dbe4ee] rounded-xl">
+                        <table class="w-full border-collapse text-sm bg-white">
+                            <thead>
+                                <tr>
+                                    <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Type ID</th>
+                                    <th class="text-left bg-slate-100 sticky top-0 z-[1] p-3 border-b border-[#dbe4ee]">Type Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="types-body">
+                                <tr>
+                                    <td colspan="2" class="p-3 border-b border-[#edf2f7] text-gray-800">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <div>
-          <label for="name">Họ tên</label>
-          <input id="name" name="name" type="text" maxlength="50" required />
-        </div>
+        <script>
+            const form = document.getElementById('human-form');
+            const typeForm = document.getElementById('human-type-form');
+            const statusEl = document.getElementById('status');
+            const typeStatusEl = document.getElementById('type-status');
+            const bodyEl = document.getElementById('humans-body');
+            const typeBodyEl = document.getElementById('types-body');
+            const typeEl = document.getElementById('typeid');
+            const refreshBtn = document.getElementById('refresh');
 
-        <div>
-          <label for="dob">Ngày sinh</label>
-          <input id="dob" name="dob" type="date" />
-        </div>
+            const TD = 'p-3 border-b border-[#edf2f7] text-gray-800';
+            const TR = 'hover:bg-slate-50';
 
-        <div>
-          <label for="gender">Giới tính</label>
-          <select id="gender" name="gender">
-            <option value="">-- Chọn --</option>
-            <option value="M">Nam (M)</option>
-            <option value="F">Nữ (F)</option>
-          </select>
-        </div>
+            function setStatus(message, type = '') {
+                statusEl.textContent = message;
+                statusEl.className = 'mt-3 text-[13px] min-h-[18px]';
+                if (type === 'error') statusEl.classList.add('text-red-600');
+                if (type === 'success') statusEl.classList.add('text-green-600');
+            }
 
-        <div>
-          <label for="typeid">Loại Human</label>
-          <select id="typeid" name="typeid" required>
-            <option value="">Đang tải...</option>
-          </select>
-        </div>
+            function setTypeStatus(message, type = '') {
+                typeStatusEl.textContent = message;
+                typeStatusEl.className = 'mt-3 text-[13px] min-h-[18px]';
+                if (type === 'error') typeStatusEl.classList.add('text-red-600');
+                if (type === 'success') typeStatusEl.classList.add('text-green-600');
+            }
 
-        <button type="submit">Lưu vào Database</button>
-      </form>
+            function formatDate(value) {
+                if (!value) return '';
+                return value;
+            }
 
-      <div id="status" class="status"></div>
+            async function loadTypes() {
+                try {
+                    const res = await fetch('/humans/types');
+                    if (!res.ok) throw new Error('Không thể tải loại Human');
+                    const types = await res.json();
 
-      <hr class="section-divider" />
+                    typeEl.innerHTML = "<option value=''>-- Chọn loại --</option>";
+                    typeBodyEl.innerHTML = '';
 
-      <h2 class="section-title">Thêm Human Type</h2>
-      <p class="subtitle">Tạo loại Human mới để dùng cho form Human.</p>
+                    if (!types.length) {
+                        typeBodyEl.innerHTML = `<tr class="${TR}"><td class="${TD}" colspan="2">Chưa có dữ liệu</td></tr>`;
+                        return;
+                    }
 
-      <form id="human-type-form" class="form-grid">
-        <div>
-          <label for="type-id">Type ID</label>
-          <input id="type-id" name="type-id" type="number" min="1" required />
-        </div>
+                    types.forEach((item) => {
+                        const option = document.createElement('option');
+                        option.value = item.typeid;
+                        option.textContent = `${item.typeid} - ${item.name}`;
+                        typeEl.appendChild(option);
 
-        <div>
-          <label for="type-name">Type Name</label>
-          <input id="type-name" name="type-name" type="text" maxlength="50" required />
-        </div>
+                        const row = document.createElement('tr');
+                        row.className = TR;
+                        row.innerHTML = `<td class="${TD}">${item.typeid}</td><td class="${TD}">${item.name}</td>`;
+                        typeBodyEl.appendChild(row);
+                    });
+                } catch (error) {
+                    typeEl.innerHTML = "<option value=''>Lỗi tải dữ liệu</option>";
+                    typeBodyEl.innerHTML = `<tr><td class="${TD}" colspan="2">${error.message}</td></tr>`;
+                    setStatus(error.message, 'error');
+                }
+            }
 
-        <button type="submit">Lưu Human Type</button>
-      </form>
+            async function loadHumans() {
+                try {
+                    bodyEl.innerHTML = `<tr><td class="${TD}" colspan="6">Đang tải dữ liệu...</td></tr>`;
+                    const res = await fetch('/humans');
+                    if (!res.ok) throw new Error('Không thể tải danh sách Human');
+                    const humans = await res.json();
 
-      <div id="type-status" class="status"></div>
-    </section>
+                    if (!humans.length) {
+                        bodyEl.innerHTML = `<tr><td class="${TD}" colspan="6">Chưa có dữ liệu</td></tr>`;
+                        return;
+                    }
 
-    <section class="panel">
-      <div class="toolbar">
-        <div>
-          <h2 style="margin: 0; font-size: 20px;">Danh Sách Human</h2>
-          <p class="subtitle" style="margin: 4px 0 0;">Dữ liệu lấy trực tiếp từ SQL Server</p>
-        </div>
-        <button id="refresh" class="refresh-btn" type="button">Tải lại</button>
-      </div>
+                    bodyEl.innerHTML = '';
+                    humans.forEach((human) => {
+                        const row = document.createElement('tr');
+                        row.className = TR;
+                        row.innerHTML = `
+                            <td class="${TD}">${human.id}</td>
+                            <td class="${TD}">${human.name}</td>
+                            <td class="${TD}">${formatDate(human.dob)}</td>
+                            <td class="${TD}">${human.gender ?? ''}</td>
+                            <td class="${TD}">${human.typeid}</td>
+                            <td class="${TD}">${human.type_name}</td>
+                        `;
+                        bodyEl.appendChild(row);
+                    });
+                } catch (error) {
+                    bodyEl.innerHTML = `<tr><td class="${TD}" colspan="6">${error.message}</td></tr>`;
+                }
+            }
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Họ tên</th>
-              <th>Ngày sinh</th>
-              <th>Giới tính</th>
-              <th>Type ID</th>
-              <th>Type Name</th>
-            </tr>
-          </thead>
-          <tbody id="humans-body">
-            <tr><td colspan="6">Đang tải dữ liệu...</td></tr>
-          </tbody>
-        </table>
-      </div>
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                setStatus('Đang lưu dữ liệu...');
 
-      <div class="table-block">
-        <h2 style="margin: 0 0 10px; font-size: 20px;">Danh Sách Human Type</h2>
-        <div class="table-wrap" style="max-height: 240px;">
-          <table>
-            <thead>
-              <tr>
-                <th>Type ID</th>
-                <th>Type Name</th>
-              </tr>
-            </thead>
-            <tbody id="types-body">
-              <tr><td colspan="2">Đang tải dữ liệu...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </div>
+                const payload = {
+                    id: Number(document.getElementById('id').value),
+                    name: document.getElementById('name').value.trim(),
+                    dob: document.getElementById('dob').value || null,
+                    gender: document.getElementById('gender').value || null,
+                    typeid: Number(document.getElementById('typeid').value),
+                };
 
-  <script>
-    const form = document.getElementById("human-form");
-    const typeForm = document.getElementById("human-type-form");
-    const statusEl = document.getElementById("status");
-    const typeStatusEl = document.getElementById("type-status");
-    const bodyEl = document.getElementById("humans-body");
-    const typeBodyEl = document.getElementById("types-body");
-    const typeEl = document.getElementById("typeid");
-    const refreshBtn = document.getElementById("refresh");
+                try {
+                    const res = await fetch('/humans', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
 
-    function setStatus(message, type = "") {
-      statusEl.textContent = message;
-      statusEl.className = `status ${type}`.trim();
-    }
+                    const data = await res.json();
 
-    function setTypeStatus(message, type = "") {
-      typeStatusEl.textContent = message;
-      typeStatusEl.className = `status ${type}`.trim();
-    }
+                    if (!res.ok) {
+                        const detail = data.detail || 'Lưu thất bại';
+                        throw new Error(detail);
+                    }
 
-    function formatDate(value) {
-      if (!value) return "";
-      return value;
-    }
+                    setStatus(data.message || 'Lưu thành công', 'success');
+                    form.reset();
+                    await loadHumans();
+                } catch (error) {
+                    setStatus(error.message, 'error');
+                }
+            });
 
-    async function loadTypes() {
-      try {
-        const res = await fetch("/humans/types");
-        if (!res.ok) throw new Error("Không thể tải loại Human");
-        const types = await res.json();
+            typeForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                setTypeStatus('Đang lưu Human Type...');
 
-        typeEl.innerHTML = "<option value=''>-- Chọn loại --</option>";
-        typeBodyEl.innerHTML = "";
+                const payload = {
+                    typeid: Number(document.getElementById('type-id').value),
+                    name: document.getElementById('type-name').value.trim(),
+                };
 
-        if (!types.length) {
-          typeBodyEl.innerHTML = "<tr><td colspan='2'>Chưa có dữ liệu</td></tr>";
-          return;
-        }
+                try {
+                    const res = await fetch('/humans/types', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
 
-        types.forEach((item) => {
-          const option = document.createElement("option");
-          option.value = item.typeid;
-          option.textContent = `${item.typeid} - ${item.name}`;
-          typeEl.appendChild(option);
+                    const data = await res.json();
 
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${item.typeid}</td>
-            <td>${item.name}</td>
-          `;
-          typeBodyEl.appendChild(row);
-        });
-      } catch (error) {
-        typeEl.innerHTML = "<option value=''>Lỗi tải dữ liệu</option>";
-        typeBodyEl.innerHTML = `<tr><td colspan='2'>${error.message}</td></tr>`;
-        setStatus(error.message, "error");
-      }
-    }
+                    if (!res.ok) {
+                        const detail = data.detail || 'Lưu Human Type thất bại';
+                        throw new Error(detail);
+                    }
 
-    async function loadHumans() {
-      try {
-        bodyEl.innerHTML = "<tr><td colspan='6'>Đang tải dữ liệu...</td></tr>";
-        const res = await fetch("/humans");
-        if (!res.ok) throw new Error("Không thể tải danh sách Human");
-        const humans = await res.json();
+                    setTypeStatus(data.message || 'Lưu Human Type thành công', 'success');
+                    typeForm.reset();
+                    await loadTypes();
+                } catch (error) {
+                    setTypeStatus(error.message, 'error');
+                }
+            });
 
-        if (!humans.length) {
-          bodyEl.innerHTML = "<tr><td colspan='6'>Chưa có dữ liệu</td></tr>";
-          return;
-        }
+            refreshBtn.addEventListener('click', async () => {
+                await loadTypes();
+                await loadHumans();
+            });
 
-        bodyEl.innerHTML = "";
-        humans.forEach((human) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${human.id}</td>
-            <td>${human.name}</td>
-            <td>${formatDate(human.dob)}</td>
-            <td>${human.gender ?? ""}</td>
-            <td>${human.typeid}</td>
-            <td>${human.type_name}</td>
-          `;
-          bodyEl.appendChild(row);
-        });
-      } catch (error) {
-        bodyEl.innerHTML = `<tr><td colspan='6'>${error.message}</td></tr>`;
-      }
-    }
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      setStatus("Đang lưu dữ liệu...");
-
-      const payload = {
-        id: Number(document.getElementById("id").value),
-        name: document.getElementById("name").value.trim(),
-        dob: document.getElementById("dob").value || null,
-        gender: document.getElementById("gender").value || null,
-        typeid: Number(document.getElementById("typeid").value),
-      };
-
-      try {
-        const res = await fetch("/humans", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          const detail = data.detail || "Lưu thất bại";
-          throw new Error(detail);
-        }
-
-        setStatus(data.message || "Lưu thành công", "success");
-        form.reset();
-        await loadHumans();
-      } catch (error) {
-        setStatus(error.message, "error");
-      }
-    });
-
-    typeForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      setTypeStatus("Đang lưu Human Type...");
-
-      const payload = {
-        typeid: Number(document.getElementById("type-id").value),
-        name: document.getElementById("type-name").value.trim(),
-      };
-
-      try {
-        const res = await fetch("/humans/types", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          const detail = data.detail || "Lưu Human Type thất bại";
-          throw new Error(detail);
-        }
-
-        setTypeStatus(data.message || "Lưu Human Type thành công", "success");
-        typeForm.reset();
-        await loadTypes();
-      } catch (error) {
-        setTypeStatus(error.message, "error");
-      }
-    });
-
-    refreshBtn.addEventListener("click", async () => {
-      await loadTypes();
-      await loadHumans();
-    });
-
-    loadTypes();
-    loadHumans();
-  </script>
-</body>
+            loadTypes();
+            loadHumans();
+        </script>
+    </body>
 </html>
