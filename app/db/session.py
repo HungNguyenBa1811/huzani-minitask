@@ -12,9 +12,14 @@ def build_connection_url() -> str:
     if not settings.is_db_configured:
         raise ValueError("Missing required DB env vars: DB_HOST, DB_NAME, DB_USER, DB_PASSWORD")
 
+    # If DB_HOST is a named instance (e.g. HOST\\SQLEXPRESS), do not append port.
+    server = settings.db_host
+    if server and "\\" not in server and settings.db_port:
+        server = f"{server},{settings.db_port}"
+
     params = (
         f"DRIVER={{{settings.db_driver}}};"
-        f"SERVER={settings.db_host},{settings.db_port};"
+        f"SERVER={server};"
         f"DATABASE={settings.db_name};"
         f"UID={settings.db_user};"
         f"PWD={settings.db_password};"
